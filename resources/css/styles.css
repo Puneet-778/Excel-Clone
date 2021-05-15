@@ -1,0 +1,327 @@
+*{
+    box-sizing: border-box;
+    margin:0;
+    padding:0;
+}
+
+a{
+    font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+}
+body{
+    overflow: hidden;
+}
+
+.container{
+    display: flex;
+    flex-direction: column;
+    background-color: whitesmoke;
+    color:#444;
+    min-height: 100vh;
+    font-family: sans-serif;
+    position: relative;
+    /* min-width:100%; */
+    /* position: absolute;
+    left:0px;
+    top:0px; */
+}
+
+.title{
+    background-color: #217346;
+    text-align: center;
+    font-size: 1rem;
+    padding:0.5rem;
+    height:5vh;
+    color: whitesmoke;
+    width: 100%;
+}
+.menu-bar{
+    display: flex;
+    background-color: #217346;
+    height: 5vh;
+    width: 100%;
+}
+.menu-bar-item{
+    color:aliceblue;
+    padding-left: 0.5rem;
+    padding-right:0.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.menu-bar-item.selected{
+    background-color: whitesmoke;
+    color: #444;
+}
+
+.menu-bar-item:hover{
+    background-color: #1955;
+    cursor: pointer;
+    transition:transform 0.5s;
+    transform: scale(1.05);
+}
+.menu-bar-item.selected:hover{
+    background-color: whitesmoke;
+    color: #e6f8f7; 
+    background-color: #1955;
+}
+.menu-icon-bar{
+    display: flex;
+    height:6vh;
+    width: 100%;
+    align-items: center;
+}
+
+.menu-item{
+    height: 100%;
+    display: flex;
+    padding-left:0.5rem;
+    padding-right: 0.5rem;
+    color:#217346;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-icon:hover{
+    transition:transform 0.5s;
+    transform: scale(1.2);
+}
+
+.menu-selector{
+    height: 3vh;
+    color: #217346;
+    width: 10vw;
+    min-width: 130px;
+    margin-left: 0.7rem;
+}
+/* .menu-selector:hover{
+    transition:transform 0.5s;
+    transform: scale(1.05);
+} */
+#font-size{
+    width:3.5vw;
+    min-width: 60px;
+}
+.formula-bar{
+    display: flex;
+    align-items: center;
+    height:4vh;
+    width: 100%;
+    padding-left:0.5rem;
+    padding-right:0.5rem;
+    background-color: lightgray;
+}
+#selected-cell{
+    width: 7%;
+    height:70%;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background-color: whitesmoke;
+}
+#formula-sign{
+    display: flex;
+    width: 3%;
+    justify-content: center;
+    align-items: center;
+}
+#formula-input{
+    background-color: whitesmoke;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    height:70%;
+    width: 90%;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+
+ /* <--------------data-container styling ------------->
+<-----------------------------------------------------> */
+
+.data-container{
+    /* background-color: rgb(207, 238, 207); */
+    display: flex;
+    flex-wrap: wrap;
+    height:76vh;
+    /* overflow: scroll; */
+}
+#select-all{
+    height:25px;
+    width:25px;
+    /* background-color: #217346; */
+    border-top: 1px solid lightslategray;
+}
+#columns{
+    height: 25px;
+    width: calc(100% - 25px);
+    background-color: rgb(215, 214, 255);
+    display: flex;
+    border-top: 1px solid lightslategray;
+    border-left: 1px solid lightslategray;
+    overflow: hidden;
+}
+.column-name{
+    min-width:100px;
+    min-height:  25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-right: 1px solid lightslategray;
+    font-weight: bold;
+}
+#rows{
+    width: 25px;
+    height: calc(100% - 25px);
+    background-color:aliceblue;
+    border-top: 1px solid lightslategray;
+    background-color: rgb(215, 214, 255);
+    overflow: hidden;
+}
+.row-name{
+    min-height: 25px;
+    border-bottom: 1px solid lightslategray;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size:0.8rem;
+    font-weight: bold;
+}
+#cells{
+    position: relative;
+    width: calc(100% - 25px);
+    height: calc(100% - 25px);
+    /* background-color:#21734618; */
+    border: 1px solid lightslategray;
+    border-bottom: none;
+    display: flex;
+    flex-direction: column;
+    overflow:scroll;
+}
+.cell-row{
+    min-height: 25px;
+    width: 100%;
+    display: flex;
+}
+.input-cell{
+    min-width:100px;
+    width: 100px;
+    height: 100%;
+    border-right:1px solid lightslategray;
+    border-bottom: 1px solid lightslategray;
+    padding: 3px 3px;
+    overflow: hidden;
+    outline-color: #217346;
+    font-family: 'Trebuchet MS';
+    font-size: 14px;
+    /* //change color of focus */
+}
+.cell-selected{
+    border:2px solid green;
+}
+
+.remove-top-border{
+    border-top:none;
+}
+.remove-left-border{
+    border-left:none;
+}
+.remove-bottom-border{
+    border-bottom: 1px solid lightslategray;
+}
+.remove-right-border{
+    border-right: 1px solid lightslategray;
+}
+
+.menu-item.selected{
+    background-color: lightgray;
+}
+.menu-item:hover{
+    background-color: lightgray;
+}
+
+
+
+/* FILL-color ------ fill text */
+/* ---------------------------------- */
+.fill{
+    border-bottom:3px solid rgb(247, 221, 74);
+}
+.text{
+    border-bottom:3px solid #444;
+}
+
+.pick-color:hover{ transform: scale(1); }
+
+#colorPick:hover{
+    cursor: pointer;
+}
+
+.input-cell:hover{
+    cursor: cell;
+}
+
+.sheet-bar{
+    height: 4vh;
+    background-color: rgb(236, 235, 235);
+    display: flex;
+    align-items: center;
+    cursor:pointer;
+}
+.add-sheet{
+    color: #217346;
+    padding: 0.5rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    border-left: 2px solid lightgray;
+    border-right: 2px solid lightgray;
+}
+.sheet-tab-container{
+    display: flex;
+}
+.sheet-scroller{
+    display:flex;
+    align-items: center;
+}
+
+
+.sheet-tab-container{
+    height:4vh;
+    overflow: scroll;
+}
+::-webkit-scrollbar {
+    display: none;
+    }
+
+.sheet-tab{
+    padding:0.5rem;
+    font-size:0.8rem;
+    font-weight: bold;
+    border-right: 2px solid lightgray;
+}
+
+.sheet-tab:hover, .add-sheet:hover{
+    background-color: lightgray;
+    transition: background-color 0.3s;
+}
+.scroller:hover{
+    transform: scale(1.2);
+    transition: transform 0.3s;
+}
+
+.sheet-tab.selected{
+    background-color: #217346;
+    color: white;
+    border-bottom: 4px solid white;
+    transition: background-color 0.3s;
+}
+
+
+
+
+
+
