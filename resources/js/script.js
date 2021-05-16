@@ -508,4 +508,98 @@ $(".menu-selector").change(function (e) {
   updateCellData(key, value);
 });
 
-//-----------------multiple sheets--------------------
+//-----------------multiple sheets--------------------//
+//<<-------------------UI update---------------------->>//
+
+function addSheetEvents(){
+  //event attached to dynamically added sheet
+  //attach event to selected sheet
+  $('.sheet-tab.selected').on('contextmenu',function(e){
+    e.preventDefault();
+    $('.sheet-options-modal').remove();//previously opened modal will be deleted
+    let modal = `<div class="sheet-options-modal">
+                  <div class="option sheet-rename">Rename</div>
+                  <div class="option sheet-delete">Delete</div>
+                  </div>`;
+  
+    $('.container').append(modal);
+    $('.sheet-options-modal').css('left',e.pageX);
+  });
+
+  $('.sheet-tab.selected').click(function(){
+    $('.sheet-tab.selected').removeClass('selected');
+    $(this).addClass('selected');
+    selectSheet();
+  })
+}
+
+addSheetEvents();
+
+$('.add-sheet').click(function(){
+  lastlyAddedSheet++;
+  totalSheets++;
+  cellData[`Sheet${lastlyAddedSheet}`] = {};//attach new object for new sheet
+  $('.sheet-tab.selected').removeClass('selected');
+  let newSheet = ` <div class="sheet-tab selected">Sheet${lastlyAddedSheet}</div>`;
+  $('.sheet-tab-container').append(newSheet);
+  addSheetEvents();
+  
+  selectSheet();
+});
+
+function selectSheet(){
+  emptyPreviousSheet();
+  selectedSheet = $('.sheet-tab.selected').text();
+  loadCurrentSheet();
+}
+
+function emptyPreviousSheet(){
+  //from datastructure---> cellData find stored cells and empty them on UI for new Sheet to load;
+  let data = cellData[selectedSheet];
+  let cellRows = Object.keys(data);
+  for(let i of cellRows){
+    let cellCol = Object.keys(data[i]);
+    for(let j of cellCol){
+      let row = parseInt(i);
+      let col = parseInt(j);
+      let cell = $(`#row-${row+1}-col-${col+1}`);
+      // console.log(cell.text());
+      cell.text("");
+      cell.css({
+        'font-family':'monospace',
+        'font-size':'14',
+        'background-color':'#fff',
+        'color':'#444',
+        'font-weight':"",
+        'font-style':'',
+        'text-decoration':'',
+        'text-align':'left'
+      });
+    }
+  }
+}
+
+function loadCurrentSheet(){
+  let data = cellData[selectedSheet];
+  let cellRows = Object.keys(data);
+  for(let i of cellRows){
+     let cellCols = Object.keys(data[i]);
+     for(let j of cellCols){
+       let row = parseInt(i);
+       let col = parseInt(j);
+
+       let cell = $(`#row-${row+1}-col-${col+1}`);
+       cell.text(data[i][j].text);
+       cell.css({
+         'font-family':data[i][j]['font-family'],
+         'font-size':data[i][j]['font-size'],
+         'color':data[i][j]['color'],
+         'background-color':data[i][j]['bgcolor'],
+         'font-weight': data[i][j]['bold'] ? 'bold':'',
+         'font-style' : data[i][j]['italic'] ? 'italic':'',
+         'text-decoration': data[i][j]['underline'] ? 'underline':'',
+         'text-align':data[i][j]['alignment']
+       });
+     }
+  }
+}
