@@ -22,30 +22,28 @@ for (let i = 1; i <= 100; i++) {
 // ---------//GRID _GENERATION ---------------> CELLS---------------------//
 //---------------------------------------------------------------
 
-let cellData = [];
+let cellData = { Sheet1: {} };
+let selectedSheet = "Sheet1";
+let totalSheets = 1;
+let defaultPropObj = {
+  "font-family": "monospace",
+  "font-size": 14,
+  text: "",
+  bold: false,
+  italic: false,
+  underline: false,
+  alignment: "left",
+  color: "#444",
+  bgcolor: "rgb(247, 221, 74)",
+};
 
 for (let i = 1; i <= 100; i++) {
   let row = $(`<div class="cell-row"></div>`);
-  let rowArr = [];
   for (let j = 1; j <= 100; j++) {
     row.append(
       `<div class="input-cell" id="row-${i}-col-${j}" contenteditable="false" ></div>`
     );
-    let obj = {
-      "font-family":"monospace",
-      "font-size": 14,
-      text: "",
-      bold: false,
-      italic: false,
-      underline: false,
-      alignment: "left",
-      color: "#444",
-      bgcolor: "rgb(247, 221, 74)",
-    };
-    // cellData[i-1][j-1].push(obj);
-    rowArr.push(obj);
   }
-  cellData.push(rowArr);
   $("#cells").append(row);
 }
 
@@ -70,9 +68,9 @@ $(".input-cell").dblclick(function (e) {
   $(this).focus();
 });
 $(".input-cell").blur(function () {
+  updateCellData("text", $(this).text());
   $(this).attr("contenteditable", "false");
 });
-
 // <--------------------------SIngleClick------------------------>
 //-------------------------------------------------------
 // $('.input-cell').click(function(){
@@ -138,8 +136,15 @@ function selectCell(cell, e, top, left, down, right) {
 }
 
 function changeHeader(cell) {
-  let [row, col] = getCell(cell);
-  let data = cellData[row - 1][col - 1];
+console.log(cellData);
+ let [row, col] = getCell(cell);
+ let data;
+ if(cellData[selectedSheet][row-1] !=undefined && cellData[selectedSheet][row-1][col-1]!=undefined){
+   data = cellData[selectedSheet][row-1][col-1];
+ }else{
+   data = defaultPropObj;
+ }
+ 
   $(".alignment.selected").removeClass("selected");
   $(".menu-item.selected").removeClass("selected");
   $(`.alignment[data-type=${data.alignment}]`).addClass("selected");
@@ -165,10 +170,9 @@ function changeHeader(cell) {
 
   //<<----------------Font-family && font-size---------------->>//
   //----------------------------------------------------------
-  $('#font-size').val(data['font-size']);
-  $('#font-family').css('font-family',data['font-family']);
-  $('#font-family').val(data['font-family']);
-
+  $("#font-size").val(data["font-size"]);
+  $("#font-family").css("font-family", data["font-family"]);
+  $("#font-family").val(data["font-family"]);
 }
 
 // <<--------------DESELECT CELL function-------------->>>>
@@ -325,17 +329,58 @@ function selectAllBetweenCells(event, startCell, endCell) {
 }
 
 //------------------- functionality--------------------------//
+//-----------------------------------------------------------//
+
+function updateCellData(key, value) {
+  if (value != defaultPropObj[key]) {
+    //change occured in alignment
+    $(".cell-selected").each(function (index, data) {
+      // console.log(data);
+      let [row, col] = getCell(data);
+      if (cellData[selectedSheet][row - 1] == undefined) {
+        //rwo does not exist
+        cellData[selectedSheet][row - 1] = {};
+        cellData[selectedSheet][row - 1][col - 1] = { ...defaultPropObj };
+        cellData[selectedSheet][row - 1][col - 1][key] = value;
+      } else {
+        //row exist
+        if (cellData[selectedSheet][row - 1][col - 1] == undefined) {
+          // column does not exist
+          cellData[selectedSheet][row - 1][col - 1] = { ...defaultPropObj };
+          cellData[selectedSheet][row - 1][col - 1][key] = value;
+        } else {
+          //column already exists
+          cellData[selectedSheet][row - 1][col - 1][key] = value;
+        }
+      }
+    });
+  } else {
+    //change equal to default value
+    $(".cell-selected").each(function (index, data) {
+      let [row, col] = getCell(data);
+      if (
+        cellData[selectedSheet][row - 1] != undefined &&
+        cellData[selectedSheet][row - 1][col - 1] != undefined
+      ) {
+        //row and column both exists
+        cellData[selectedSheet][row - 1][col - 1][key] = value;
+        if (JSON.stringify(defaultPropObj) == JSON.stringify(cellData[selectedSheet][row - 1][col - 1])) {
+          delete cellData[selectedSheet][row - 1][col - 1];
+          if(Object.keys(cellData[selectedSheet][row-1]).length == 0){
+            delete cellData[selectedSheet][row-1];//if there entire row becomes empty delete row
+          }
+        }
+      }
+    });
+  }
+}
+
 $(".alignment").click(function (e) {
-  let alignment = $(this).attr("data-type");
-  console.log(alignment);
+  let alignment = $(this).attr("data-type"); //left,right,center
   $(".alignment.selected").removeClass("selected");
   $(this).addClass("selected");
   $(".input-cell.cell-selected").css("text-align", alignment);
-  $(".input-cell.cell-selected").each(function (item, data) {
-    // console.log(data);
-    let [row, col] = getCell(data);
-    cellData[row - 1][col - 1].alignment = alignment;
-  });
+  updateCellData("alignment", alignment);
 });
 //<<----------------BOLD------------------->>>
 $("#bold").click(function () {
@@ -356,20 +401,21 @@ function changeStyle(el, style, key, value) {
   if ($(el).hasClass("selected")) {
     $(el).removeClass("selected");
     $(".cell-selected").css(key, "");
-    $(".cell-selected").each(function (item, data) {
-      let [row, col] = getCell(data);
-      cellData[row - 1][col - 1][style] = false;
-    });
+    updateCellData(style, false);
+    // $(".cell-selected").each(function (index, data) {
+    //   let [row, col] = getCell(data);
+    //   cellData[row - 1][col - 1][style] = false;
+    // });
   } else {
     $(el).addClass("selected");
     $(".cell-selected").css(key, value);
-    $(".cell-selected").each(function (item, data) {
-      let [row, col] = getCell(data);
-      cellData[row - 1][col - 1][style] = true;
-    });
+    updateCellData(style, true);
+    // $(".cell-selected").each(function (index, data) {
+    //   let [row, col] = getCell(data);
+    //   cellData[row - 1][col - 1][style] = true;
+    // });
   }
 }
-
 
 // <<-----------------COLOR-PICKER-------------------->>>
 //--------------------------------------------------------
@@ -403,26 +449,25 @@ $(".pick-color").colorPick({
   onColorSelected: function () {
     if (this.color != "#ABCD") {
       //some color has been selected by user
-      // console.log(this.color);
       // console.log(this.element);
       // console.log(this.element.children()[1]);
-      let color = this.color;
       let id = $(this.element.children()[1]).attr("id");
-      console.log(id);
       if (id == "fill-color") {
         $(".cell-selected").css("background-color", this.color);
-        $(".cell-selected").each(function (item, data) {
-          let [row, col] = getCell(data);
-          cellData[row - 1][col - 1].bgcolor = color;
-        });
+        // $(".cell-selected").each(function (index, data) {
+        //   let [row, col] = getCell(data);
+        //   cellData[row - 1][col - 1].bgcolor = color;
+        // });
+        updateCellData("bgcolor", this.color);
         $(".fill").css("border-bottom", `3px solid ${this.color}`);
       }
       if (id == "text-color") {
         $(".cell-selected").css("color", this.color);
-        $(".cell-selected").each(function (item, data) {
-          let [row, col] = getCell(data);
-          cellData[row - 1][col - 1].color = color;
-        });
+        // $(".cell-selected").each(function (index, data) {
+        //   let [row, col] = getCell(data);
+        //   cellData[row - 1][col - 1].color = color;
+        // });
+        updateCellData("color", this.color);
         $(".text").css("border-bottom", `3px solid ${this.color}`);
       }
     }
@@ -441,28 +486,26 @@ $("#text-color").click(function () {
   }, 10);
 });
 
-
-
 //<<-----------------------FONT-FAMILY --------------------------->>
 //<<-------------------------FONT-SIZE---------------------------->>
 
-$('.menu-selector').change(function(e){
+$(".menu-selector").change(function (e) {
   let value = $(this).val();
-  let key = $(this).attr('id');
+  let key = $(this).attr("id");
 
-  if(key == 'font-family'){
-    $('#font-family').css(key,value);
+  if (key == "font-family") {
+    $("#font-family").css(key, value);
   }
-  if(!isNaN(value)){
+  if (!isNaN(value)) {
     value = parseInt(value);
   }
 
-  $('.cell-selected').css( key , value );
-  $('.cell-selected').each(function(item,data){
-    let[row,col] = getCell(data);
-    cellData[row-1][col-1][key] = value;
-  })
-})
-
+  $(".cell-selected").css(key, value);
+  // $(".cell-selected").each(function (index, data) {
+  //   let [row, col] = getCell(data);
+  //   cellData[row - 1][col - 1][key] = value;
+  // });
+  updateCellData(key, value);
+});
 
 //-----------------multiple sheets--------------------
