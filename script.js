@@ -990,3 +990,99 @@ function openExistingFile(){
     });
     inputFile.remove();
 }
+//<<--------------------Cut---------------------------->>//
+//----------------------------------------------------//
+$('#cut').click(function(){
+  flag = 'cut';
+  clipBoard = {};
+  let [rowId,colId] = getCell($('.cell-selected')[0]);
+    rowInit = rowId - 1;
+    colInit = colId - 1;
+
+    $('.cell-selected').each(function(index,data){
+      let[row,col] = getCell(this);
+      if(cellData[selectedSheet][row-1] && cellData[selectedSheet][row-1][col-1]){
+        if(clipBoard[row - 1]){
+          clipBoard[row-1][col-1] = {...cellData[selectedSheet][row-1][col-1]};
+        }else{
+          clipBoard[row - 1] = {};
+          clipBoard[row-1][col-1] = {...cellData[selectedSheet][row-1][col-1]};
+        } 
+        cellData[selectedSheet][row-1][col-1] = {...defaultPropObj};
+        // to reflect UI empty on emptyprevioussheet()
+        //can't delete here as emptyprevious require celldata to empty UI
+      }else{
+      //empty cell is copied--->self
+         if(clipBoard[row - 1]){
+            clipBoard[row-1][col-1] = {...defaultPropObj};
+         }else{
+            clipBoard[row - 1] = {};
+            clipBoard[row-1][col-1] = {...defaultPropObj};
+          } 
+        }
+    });
+    // console.log(cellData);
+    // console.log(clipBoard);
+});
+
+//<<------------------------Paste-------------------------->>//
+//------------------------------------------------------//
+$('#paste').click(function(){
+  let[startrow,startcol] = getCell($('.cell-selected')[0]);
+  startrow -= 1;
+  startcol -= 1;
+
+  if(flag == 'cut'){
+    emptyPreviousSheet();
+  }
+
+  let rowkeys = Object.keys(clipBoard);
+
+  for(let i in rowkeys){
+    let colKeys = Object.keys(clipBoard[rowkeys[i]]);
+    let rowdiff = rowkeys[i] - rowInit; 
+    for(let j in colKeys){
+
+      let coldiff = colKeys[j] - colInit;
+      if(cellData[selectedSheet][startrow + rowdiff]){
+          cellData[selectedSheet][startrow + rowdiff][startcol + coldiff] = {...clipBoard[rowkeys[i]][colKeys[j]]};
+      }else{
+        cellData[selectedSheet][startrow + rowdiff] = {};
+        cellData[selectedSheet][startrow + rowdiff][startcol + coldiff] = {...clipBoard[rowkeys[i]][colKeys[j]]};
+      }
+
+      if(flag == 'cut'){
+        if(cellData[selectedSheet][rowkeys[i]] && cellData[selectedSheet][rowkeys[i]][colKeys[j]]){
+          if(JSON.stringify(cellData[selectedSheet][rowkeys[i]][colKeys[j]]) == JSON.stringify(defaultPropObj)){
+            delete cellData[selectedSheet][rowkeys[i]][colKeys[j]]
+          }
+          if(Object.keys(cellData[selectedSheet][rowkeys[i]]).length == 0){
+            delete cellData[selectedSheet][rowkeys[i]];
+          }
+        }
+      }  
+    }
+  }
+  if(flag == 'cut'){
+    clipBoard = {};
+  }
+  loadCurrentSheet();
+
+  //loop to remove default cells from celldata
+  for(let i in rowkeys){
+    let colKeys = Object.keys(clipBoard[rowkeys[i]]);
+    let rowdiff = rowkeys[i] - rowInit; 
+    for(let j in colKeys){
+          let coldiff = colKeys[j] - colInit;
+          if(JSON.stringify(cellData[selectedSheet][startrow + rowdiff][startcol + coldiff]) == JSON.stringify(defaultPropObj)){
+            delete cellData[selectedSheet][startrow + rowdiff][startcol + coldiff];
+          }
+          if(Object.keys(cellData[selectedSheet][startrow + rowdiff]).length == 0){
+            delete cellData[selectedSheet][startrow + rowdiff];
+          }
+    }
+  }
+
+  // console.log(cellData);
+  // console.log(clipBoard);
+});
